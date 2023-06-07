@@ -10,11 +10,13 @@ import {
 import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @Controller('url')
 export class UrlController {
   constructor(private readonly urlService: UrlService) {}
 
+  @Public()
   @Post()
   create(@Body() createUrlDto: CreateUrlDto) {
     console.log('createUrlDto', createUrlDto);
