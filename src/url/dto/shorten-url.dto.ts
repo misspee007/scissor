@@ -1,6 +1,6 @@
 import { IsUrl } from 'class-validator';
 
-export class CreateUrlDto {
+export class ShortenUrlDto {
   @IsUrl({}, { message: 'Invalid URL' })
-  url: string;
+  longUrl: string;
 }
