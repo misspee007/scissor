@@ -13,14 +13,24 @@ import { ShortenUrlDto } from './dto/shorten-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
 import CustomRequest from 'src/custom.interface';
+import { UserService } from 'src/users/users.service';
 
 @Controller('url')
 export class UrlController {
-  constructor(private readonly urlService: UrlService) {}
+  constructor(
+    private readonly urlService: UrlService,
+    private readonly userService: UserService,
+  ) {}
 
   @Post()
   create(@Body() shortenUrlDto: ShortenUrlDto, @Req() req: CustomRequest) {
     return this.urlService.shortenUrl(shortenUrlDto, req.user.sub);
+  }
+
+  @Get('/user/:id')
+  getUserUrls(@Param('id') id: string) {
+    const userId = parseInt(id, 10);
+    return this.userService.getUserUrls(userId);
   }
 
   // @Get()
