@@ -8,29 +8,39 @@ datasource db {
 }
 
 model User {
-  id        Int    @default(autoincrement()) @id
+  id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  urls     Url[]
+  urls      Url[]
 }
 
 model Url {
-  id        Int     @default(autoincrement()) @id
-  longUrl       String
-  shortUrl    String
-  userId    Int
+  id         Int        @id @default(autoincrement())
+  longUrl    String
+  shortUrlId String    @unique
+  userId     Int
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  qrCode     QrCode?
+  clicks     UrlClick[]
+  user       User       @relation(fields: [userId], references: [id])
+}
+
+model QrCode {
+  id        Int      @id @default(autoincrement())
+  image     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  clicks    UrlClick[]
-  user      User    @relation(fields: [userId], references: [id])
+  url       Url      @relation(fields: [urlId], references: [id])
+  urlId     Int      @unique
 }
 
 model UrlClick {
-  id          Int       @default(autoincrement()) @id
-  urlId       Int
-  referrer    String?
-  createdAt   DateTime  @default(now())
-  url         Url       @relation(fields: [urlId], references: [id])
+  id        Int      @id @default(autoincrement())
+  urlId     Int
+  referrer  String?
+  createdAt DateTime @default(now())
+  url       Url      @relation(fields: [urlId], references: [id])
 }
