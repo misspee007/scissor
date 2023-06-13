@@ -27,8 +27,13 @@ export class UrlController {
     return this.urlService.shortenUrl(shortenUrlDto, req.user.sub);
   }
 
-  @Get('/user/:id')
-  getUserUrls(@Param('id') id: string) {
+  @Post('/qrcode/:shortUrlId')
+  createQrCode(@Param('shortUrlId') id: string) {
+    return this.urlService.createQrCode(id);
+  }
+
+  @Get('/user/:userId')
+  getUserUrls(@Param('userId') id: string) {
     const userId = parseInt(id, 10);
     return this.userService.getUserUrls(userId);
   }
