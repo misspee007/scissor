@@ -14,7 +14,9 @@ import { UpdateUrlDto } from './dto/update-url.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
 import CustomRequest from 'src/custom.interface';
 import { UserService } from 'src/users/users.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('URL')
 @Controller('url')
 export class UrlController {
   constructor(
