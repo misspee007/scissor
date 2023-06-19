@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ShortenUrlDto } from './dto/shorten-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -7,6 +11,7 @@ import * as crypto from 'crypto';
 import * as QrCode from 'qrcode';
 import { v2 as cloudinary } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
+import { ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 
 @Injectable()
 export class UrlService {
@@ -17,20 +22,54 @@ export class UrlService {
 
   private baseUrl = this.configService.get<string>('BASE_URL');
 
-  async shortenUrl(data: ShortenUrlDto, userId: number): Promise<Url> {
-    const uniqueId = this.generateUniqueIdentifier();
+  async shortenUrl(data: ShortenUrlDto, userId: number): Promise<string> {
+    try {
+      // check if url has already been shortened
+      const existingUrl = await this.prisma.url.findFirst({
+        where: {
+          longUrl: data.longUrl,
+        },
+      });
 
-    return this.prisma.url.create({
-      data: {
-        longUrl: data.longUrl,
-        shortUrlId: uniqueId,
-        user: {
-          connect: {
-            id: userId,
+      if (existingUrl) {
+        return existingUrl.shortUrl;
+      }
+
+      const uniqueId = this.generateUniqueIdentifier();
+
+      const newUrl = await this.prisma.url.create({
+        data: {
+          longUrl: data.longUrl,
+          shortUrlId: uniqueId,
+          shortUrl: `${this.baseUrl}/${uniqueId}`,
+          user: {
+            connect: {
+              id: userId,
+            },
           },
         },
-      },
-    });
+      });
+
+      return newUrl.shortUrl;
+    } catch (error) {
+      console.log(error);
+      throw new UnprocessableEntityException('Server Error');
+    }
+  }
+
+  async redirect(shortUrlId: string): Promise<string> {
+    try {
+      const url = await this.prisma.url.findUnique({
+        where: {
+          shortUrlId,
+        },
+      });
+
+      return url.longUrl;
+    } catch (error) {
+      console.log(error);
+      throw new NotFoundException('Resource not found');
+    }
   }
 
   async createQrCode(shortUrlId: string): Promise<Url> {
@@ -47,7 +86,7 @@ export class UrlService {
     });
 
     if (!existingUrl) {
-      throw new Error(`Url ${url} does not exist`);
+      throw new NotFoundException('Url not found');
     }
 
     return this.prisma.url.update({

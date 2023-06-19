@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Req,
+  Res,
 } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { ShortenUrlDto } from './dto/shorten-url.dto';
@@ -25,7 +26,7 @@ export class UrlController {
   ) {}
 
   @Post()
-  create(@Body() shortenUrlDto: ShortenUrlDto, @Req() req: CustomRequest) {
+  shortenUrl(@Body() shortenUrlDto: ShortenUrlDto, @Req() req: CustomRequest) {
     return this.urlService.shortenUrl(shortenUrlDto, req.user.sub);
   }
 
