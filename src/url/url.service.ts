@@ -59,6 +59,10 @@ export class UrlService {
 
   async redirect(shortUrlId: string): Promise<string> {
     try {
+      if (!shortUrlId) {
+        throw new NotFoundException('Resource not found');
+      }
+
       const url = await this.prisma.url.findUnique({
         where: {
           shortUrlId,

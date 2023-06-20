@@ -10,11 +10,11 @@ export class AppController {
   @Public()
   @Get()
   getHello(): string {
-    return this.appService.getHello();
+    return this.appService.getHealth();
   }
 
   @Public()
-  @Get(':shortUrlId')
+  @Get('/:shortUrlId')
   async redirect(@Res() res, @Param('shortUrlId') id: string): Promise<any> {
     const longUrl = await this.urlService.redirect(id);
     return res.redirect(longUrl);
