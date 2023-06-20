@@ -14,6 +14,7 @@ CREATE TABLE "Url" (
     "id" SERIAL NOT NULL,
     "longUrl" TEXT NOT NULL,
     "shortUrlId" TEXT NOT NULL,
+    "shortUrl" TEXT NOT NULL,
     "userId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -44,6 +45,9 @@ CREATE TABLE "UrlClick" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Url_shortUrlId_key" ON "Url"("shortUrlId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "QrCode_urlId_key" ON "QrCode"("urlId");
