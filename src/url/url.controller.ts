@@ -1,21 +1,11 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Req,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { ShortenUrlDto } from './dto/shorten-url.dto';
-import { UpdateUrlDto } from './dto/update-url.dto';
-import { Public } from 'src/auth/decorators/public.decorator';
+import { CreateQrcodeDto } from './dto/create-qrcode.dto';
 import CustomRequest from 'src/custom.interface';
 import { UserService } from 'src/users/users.service';
 import { ApiTags } from '@nestjs/swagger';
+import { GetUserUrlsDto } from './dto/get-urls.dto';
 
 @ApiTags('URL')
 @Controller('url')
@@ -31,12 +21,12 @@ export class UrlController {
   }
 
   @Post('/qrcode/:shortUrlId')
-  createQrCode(@Param('shortUrlId') id: string) {
-    return this.urlService.createQrCode(id);
+  createQrCode(@Param() { shortUrlId }: CreateQrcodeDto) {
+    return this.urlService.createQrCode(shortUrlId);
   }
 
   @Get('/user/:userId')
-  getUserUrls(@Param('userId') id: string) {
+  getUserUrls(@Param() { id }: GetUserUrlsDto) {
     const userId = parseInt(id, 10);
     return this.userService.getUserUrls(userId);
   }
