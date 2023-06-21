@@ -4,6 +4,7 @@ import { Public } from './auth/decorators/public.decorator';
 import { UrlService } from './url/url.service';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateQrcodeDto } from './url/dto/create-qrcode.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('App')
 @Public()
@@ -11,6 +12,8 @@ import { CreateQrcodeDto } from './url/dto/create-qrcode.dto';
 export class AppController {
   constructor(private appService: AppService, private urlService: UrlService) {}
 
+  // do not rate limit this endpoint
+  @SkipThrottle()
   @Get()
   getHello(): string {
     return this.appService.getHealth();
