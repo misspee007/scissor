@@ -15,17 +15,6 @@ export class UserService {
     });
   }
 
-  async getUserUrls(userId: number): Promise<User> {
-    return this.prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      include: {
-        urls: true,
-      },
-    });
-  }
-
   async findOne(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
   ): Promise<User | null> {

@@ -19,7 +19,7 @@ export class AppController {
     return this.appService.getHealth();
   }
 
-  @Get('/:shortUrlId')
+  @Get(':shortUrlId')
   async redirect(
     @Res() res,
     @Param() { shortUrlId }: CreateQrcodeDto,

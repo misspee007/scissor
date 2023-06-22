@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -10,7 +11,6 @@ import * as crypto from 'crypto';
 import * as QrCode from 'qrcode';
 import { v2 as cloudinary } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
-import { ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 
 @Injectable()
 export class UrlService {
@@ -76,15 +76,18 @@ export class UrlService {
   }
 
   async createQrCode(shortUrlId: string): Promise<Url> {
-    const id = shortUrlId.toString();
     const url = `${this.baseUrl}/${shortUrlId}`;
-    const qrCode = await this.generateQrCode(url);
-
-    const qrCodeUrl = await this.uploadFileToCdn(qrCode, id);
 
     const existingUrl = await this.prisma.url.findUnique({
       where: {
-        shortUrlId: id,
+        shortUrlId,
+      },
+      include: {
+        qrCode: {
+          select: {
+            image: true,
+          },
+        },
       },
     });
 
@@ -92,9 +95,17 @@ export class UrlService {
       throw new NotFoundException('Url not found');
     }
 
+    if (existingUrl.qrCode) {
+      return existingUrl;
+    }
+
+    const qrCode = await this.generateQrCode(url);
+
+    const qrCodeUrl = await this.uploadFileToCdn(qrCode, shortUrlId);
+
     return this.prisma.url.update({
       where: {
-        shortUrlId: id,
+        shortUrlId,
       },
       data: {
         qrCode: {
@@ -113,15 +124,30 @@ export class UrlService {
     });
   }
 
-  async url(
-    urlWhereUniqueInput: Prisma.UrlWhereUniqueInput,
-  ): Promise<Url | null> {
-    return this.prisma.url.findUnique({
-      where: urlWhereUniqueInput,
+  async getUrlHistory(userId: number): Promise<Url[]> {
+    return this.prisma.url.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        qrCode: {
+          select: {
+            image: true,
+          },
+        },
+      },
     });
   }
 
-  async urls(params: {
+  async getUrl(shortUrlId: string): Promise<Url | null> {
+    return this.prisma.url.findUnique({
+      where: {
+        shortUrlId,
+      },
+    });
+  }
+
+  async getAllUrls(params: {
     skip?: number;
     take?: number;
     cursor?: Prisma.UrlWhereUniqueInput;
@@ -129,27 +155,40 @@ export class UrlService {
     orderBy?: Prisma.UrlOrderByWithRelationInput;
   }): Promise<Url[]> {
     const { skip, take, cursor, where, orderBy } = params;
+
+    const parsedSkip = Number.isInteger(skip) ? skip : undefined;
+    const parsedTake = Number.isInteger(take) ? take : undefined;
+
     return this.prisma.url.findMany({
-      skip,
-      take,
+      skip: parsedSkip,
+      take: parsedTake,
       cursor,
       where,
       orderBy,
     });
   }
 
-  async updateUrl(params: {
-    where: Prisma.UrlWhereUniqueInput;
-    data: Prisma.UrlUpdateInput;
-  }): Promise<Url> {
-    const { where, data } = params;
-    return this.prisma.url.update({
-      data,
-      where,
-    });
-  }
-
   async deleteUrl(where: Prisma.UrlWhereUniqueInput): Promise<Url> {
+    const url = await this.prisma.url.findUnique({
+      where,
+      include: {
+        qrCode: true,
+      },
+    });
+
+    if (!url) {
+      throw new NotFoundException('Url not found');
+    }
+
+    // delete qr code
+    if (url.qrCode) {
+      await this.prisma.qrCode.delete({
+        where: {
+          urlId: url.id,
+        },
+      });
+    }
+
     return this.prisma.url.delete({
       where,
     });

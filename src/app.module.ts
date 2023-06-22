@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UrlService } from './url/url.service';
 import { PrismaModule } from './prisma.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { UrlController } from './url/url.controller';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
     UsersModule,
     PrismaModule,
   ],
-  controllers: [AppController],
+  controllers: [UrlController, AppController],
   providers: [
     AppService,
     UrlService,
