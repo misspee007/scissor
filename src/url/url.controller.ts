@@ -30,12 +30,6 @@ export class UrlController {
     return this.urlService.createQrCode(shortUrlId);
   }
 
-  @Get('user/:userId')
-  getUserUrls(@Param() { userId }: GetUserUrlsDto) {
-    const parsedUserId = parseInt(userId, 10);
-    return this.urlService.getUrlHistory(parsedUserId);
-  }
-
   @Get(':shortUrlId')
   findOne(@Param() { shortUrlId }: GetUrlDto) {
     return this.urlService.getUrl(shortUrlId);
@@ -47,15 +41,21 @@ export class UrlController {
   }
 
   @Get()
-  findAll(@Query() { skip, take, cursor, where, orderBy }: GetAllUrlsDto) {
+  findAll(
+    @Query() { skip, take, cursor, where, orderBy }: GetAllUrlsDto,
+    @Req() req: CustomRequest,
+  ) {
     const parsedSkip = parseInt(skip, 10);
     const parsedTake = parseInt(take, 10);
-    return this.urlService.getAllUrls({
-      skip: parsedSkip,
-      take: parsedTake,
-      cursor,
-      where,
-      orderBy,
-    });
+    return this.urlService.getUrlHistory(
+      {
+        skip: parsedSkip,
+        take: parsedTake,
+        cursor,
+        where,
+        orderBy,
+      },
+      req.user.sub,
+    );
   }
 }

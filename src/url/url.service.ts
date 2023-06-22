@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -124,21 +123,6 @@ export class UrlService {
     });
   }
 
-  async getUrlHistory(userId: number): Promise<Url[]> {
-    return this.prisma.url.findMany({
-      where: {
-        userId,
-      },
-      include: {
-        qrCode: {
-          select: {
-            image: true,
-          },
-        },
-      },
-    });
-  }
-
   async getUrl(shortUrlId: string): Promise<Url | null> {
     return this.prisma.url.findUnique({
       where: {
@@ -147,13 +131,16 @@ export class UrlService {
     });
   }
 
-  async getAllUrls(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.UrlWhereUniqueInput;
-    where?: Prisma.UrlWhereInput;
-    orderBy?: Prisma.UrlOrderByWithRelationInput;
-  }): Promise<Url[]> {
+  async getUrlHistory(
+    params: {
+      skip?: number;
+      take?: number;
+      cursor?: Prisma.UrlWhereUniqueInput;
+      where?: Prisma.UrlWhereInput;
+      orderBy?: Prisma.UrlOrderByWithRelationInput;
+    },
+    userId: number,
+  ): Promise<Url[]> {
     const { skip, take, cursor, where, orderBy } = params;
 
     const parsedSkip = Number.isInteger(skip) ? skip : undefined;
@@ -163,7 +150,10 @@ export class UrlService {
       skip: parsedSkip,
       take: parsedTake,
       cursor,
-      where,
+      where: {
+        ...where,
+        userId,
+      },
       orderBy,
     });
   }
