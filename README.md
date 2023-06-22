@@ -24,9 +24,9 @@ Scissor is a URL shortener application that allows users to generate short, cust
 1. Clone the repository: `git clone <repository-url>`
 2. Install dependencies: `yarn install`
 3. Set up the database connection in the `.env` file (see `.env.example`).
-4. Generate prisma client: `yarn run generate`
-5. Run database migrations: `yarn run migrate`
-6. Start the application: `yarn run dev`
+4. Generate prisma client: `yarn run prisma:generate`
+5. Run database migrations: `yarn run prisma:migrate`
+6. Start the application: `yarn run start:dev`
 
 ## Installation
 
@@ -41,7 +41,7 @@ $ yarn install
 $ yarn run start
 
 # watch mode
-$ yarn run dev
+$ yarn run start:dev
 
 # production mode
 $ yarn run start:prod
