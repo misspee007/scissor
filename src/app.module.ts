@@ -5,19 +5,27 @@ import { UrlModule } from './url/url.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AuthGuard } from './auth/auth.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { UrlService } from './url/url.service';
 import { PrismaModule } from './prisma.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { UrlController } from './url/url.controller';
+import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    CacheModule.register({
+      // caching
+      ttl: 300000, // 5 minutes
+      max: 1000, // maximum number of items in cache
+      isGlobal: true,
+    }),
     ThrottlerModule.forRoot({
+      // rate limiting
       ttl: 60,
       limit: 10,
     }),
@@ -28,6 +36,10 @@ import { UrlController } from './url/url.controller';
   ],
   controllers: [UrlController, AppController],
   providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
+    },
     AppService,
     UrlService,
     {
@@ -35,7 +47,6 @@ import { UrlController } from './url/url.controller';
       useClass: AuthGuard,
     },
     {
-      // rate limiting
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
