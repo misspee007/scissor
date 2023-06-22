@@ -1,5 +1,5 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
-import { CreateAnalyticsDto } from './dto/create-analytics.dto';
+import { CreateAnalyticsDto } from './dto/analytics.dto';
 import { AnalyticsService } from './analytics.service';
 
 @Injectable()

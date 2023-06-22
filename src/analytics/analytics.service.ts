@@ -1,7 +1,8 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
-import { CreateAnalyticsDto } from './dto/create-analytics.dto';
+import { CreateAnalyticsDto } from './dto/analytics.dto';
 import { PrismaService } from 'src/prisma.service';
 import { QueueService } from './queue.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AnalyticsService {
@@ -10,6 +11,50 @@ export class AnalyticsService {
     private queueService: QueueService,
     private readonly prisma: PrismaService,
   ) {}
+
+  async getUserAnalytics(
+    params: {
+      skip?: number;
+      take?: number;
+      cursor?: Prisma.AnalyticsWhereUniqueInput;
+      where?: Prisma.AnalyticsWhereInput;
+      orderBy?: Prisma.AnalyticsOrderByWithRelationInput;
+    },
+    userId: number,
+  ): Promise<any[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+
+    const parsedSkip = Number.isInteger(skip) ? skip : undefined;
+    const parsedTake = Number.isInteger(take) ? take : undefined;
+
+    // Get the analytics for the user
+    return this.prisma.analytics.findMany({
+      skip: parsedSkip,
+      take: parsedTake,
+      cursor,
+      where: {
+        url: {
+          userId,
+        },
+        // OTHER FILTERS
+        ...where,
+      },
+      orderBy,
+
+      include: {
+        clickEvents: {
+          select: {
+            referer: true,
+            timestamp: true,
+          },
+          orderBy: {
+            timestamp: 'desc',
+          },
+          take: 20,
+        },
+      },
+    });
+  }
 
   async processClick(shortUrlId: string, referer: string): Promise<void> {
     const clickEvent: CreateAnalyticsDto = {
@@ -26,7 +71,7 @@ export class AnalyticsService {
     // Save the click event to the database
     const { shortUrlId, referer, timestamp } = clickEvent;
 
-    const analytics = await this.prisma.analytics.upsert({
+    await this.prisma.analytics.upsert({
       where: {
         shortUrlId,
       },
@@ -56,7 +101,5 @@ export class AnalyticsService {
         },
       },
     });
-
-    console.log(`Analytics saved for ${analytics.shortUrlId}`, analytics);
   }
 }

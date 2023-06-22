@@ -17,6 +17,7 @@ import { AnalyticsService } from './analytics/analytics.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { QueueService } from './analytics/queue.service';
 import { TaskService } from './analytics/task.service';
+import { AnalyticsController } from './analytics/analytics.controller';
 
 @Module({
   imports: [
@@ -41,7 +42,7 @@ import { TaskService } from './analytics/task.service';
     AnalyticsModule,
     ScheduleModule.forRoot(),
   ],
-  controllers: [UrlController, AppController],
+  controllers: [UrlController, AnalyticsController, AppController],
   providers: [
     {
       provide: APP_INTERCEPTOR,
