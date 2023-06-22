@@ -1,30 +1,32 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Scissor
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Scissor is a URL shortener application that allows users to generate short, customized URLs for their long URLs. It provides a simple and efficient way to manage and track URLs by providing analytics and QR code generation features.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- URL shortening: Generate short and customized URLs for long URLs.
+- QR code generation: Create QR codes for shortened URLs.
+- User management: Users can register, log in, and manage their shortened URLs.
+- Analytics: Track the number of clicks and referers for shortened URLs.
+- Caching: Utilizes caching to improve performance and reduce server load.
+- Rate limiting: Prevents abuse by limiting the number of requests per user.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Technologies Used
+
+- [Nest.js](https://github.com/nestjs/nest): A progressive Node.js framework for building efficient and scalable server-side applications.
+- [Prisma](https://www.prisma.io): A modern database toolkit for TypeScript and Node.js.
+- [PostgreSQL](https://www.postgresql.org): An open-source relational database management system.
+- NestJS Cache Manager: A module that provides caching capabilities for Nest.js applications.
+- Throttler Module: A module for request rate limiting in Nest.js applications.
+
+## Quick Start
+
+1. Clone the repository: `git clone <repository-url>`
+2. Install dependencies: `yarn install`
+3. Set up the database connection in the `.env` file (see `.env.example`).
+4. Generate prisma client: `yarn run generate`
+5. Run database migrations: `yarn run migrate`
+6. Start the application: `yarn run dev`
 
 ## Installation
 
@@ -39,7 +41,7 @@ $ yarn install
 $ yarn run start
 
 # watch mode
-$ yarn run start:dev
+$ yarn run dev
 
 # production mode
 $ yarn run start:prod
@@ -58,16 +60,24 @@ $ yarn run test:e2e
 $ yarn run test:cov
 ```
 
-## Support
+## API Documentation
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+The API documentation is available at `<base-url>/docs` after starting the application. It provides detailed information about the available endpoints, request/response structures, and authentication requirements.
+
+## Configuration
+
+The app's configuration is managed using environment variables. The required variables can be set in the `.env` file at the root of the project. Refer to the `.env.example` file for the list of required variables.
+
+<!-- ## License
+
+This project is licensed under the [MIT License](LICENSE). -->
+
 
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+- Author - Precious Abubakar
+- Mail - [preciousdanabubakar@gmailcom](mailto:preciousdanabubakar@gmailcom)
+- LinkedIn - [linkedin.com/in/precious-abubakar](https://linkedin.com/in/precious-abubakar)
+- Medium - [@preciousdanabubakar](https://medium.com/@preciousdanabubakar)
+- Hashnode - [@PDA](https://hashnode.com/@PDA)
+- Dev.to - [@pda](https://dev.to/pda)
