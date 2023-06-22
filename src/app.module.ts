@@ -12,6 +12,11 @@ import { PrismaModule } from './prisma.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { UrlController } from './url/url.controller';
 import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { AnalyticsService } from './analytics/analytics.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { QueueService } from './analytics/queue.service';
+import { TaskService } from './analytics/task.service';
 
 @Module({
   imports: [
@@ -33,6 +38,8 @@ import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
     AuthModule,
     UsersModule,
     PrismaModule,
+    AnalyticsModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [UrlController, AppController],
   providers: [
@@ -42,6 +49,9 @@ import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
     },
     AppService,
     UrlService,
+    AnalyticsService,
+    QueueService,
+    TaskService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

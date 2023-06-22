@@ -27,7 +27,7 @@ model Url {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   qrCode     QrCode?
-  clicks     UrlClick[]
+  analytics  Analytics?
   user       User       @relation(fields: [userId], references: [id])
 }
 
@@ -40,10 +40,22 @@ model QrCode {
   urlId     Int      @unique
 }
 
-model UrlClick {
+model Analytics {
   id        Int      @id @default(autoincrement())
-  urlId     Int
-  referrer  String?
+  clickEvents    ClickEvent[]
+  clicks    Int     
   createdAt DateTime @default(now())
-  url       Url      @relation(fields: [urlId], references: [id])
+  updatedAt DateTime @updatedAt
+  url       Url      @relation(fields: [shortUrlId], references: [shortUrlId])
+  shortUrlId     String      @unique
+}
+
+model ClickEvent {
+  id        Int      @id @default(autoincrement())
+  referer  String?
+  timestamp DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  analytics Analytics @relation(fields: [analyticsId], references: [id])
+  analyticsId Int
 }
