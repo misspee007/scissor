@@ -4,7 +4,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ShortenUrlDto } from './dto/shorten-url.dto';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from '../prisma.service';
 import { Prisma, Url } from '@prisma/client';
 import * as crypto from 'crypto';
 import * as QrCode from 'qrcode';
