@@ -12,14 +12,14 @@ import { SkipThrottle } from '@nestjs/throttler';
 export class AppController {
   constructor(private appService: AppService, private urlService: UrlService) {}
 
-  // do not rate limit this endpoint
+  // override rate limit for this endpoint
   @SkipThrottle()
   @Get()
   getHello(): string {
     return this.appService.getHealth();
   }
 
-  @Get('/:shortUrlId')
+  @Get(':shortUrlId')
   async redirect(
     @Res() res,
     @Param() { shortUrlId }: CreateQrcodeDto,
