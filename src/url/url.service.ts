@@ -4,7 +4,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ShortenUrlDto } from './dto/shorten-url.dto';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from '../prisma.service';
 import { Prisma, Url } from '@prisma/client';
 import * as crypto from 'crypto';
 import * as QrCode from 'qrcode';
@@ -17,8 +17,6 @@ export class UrlService {
     private prisma: PrismaService,
     private configService: ConfigService,
   ) {}
-
-  private baseUrl = this.configService.get<string>('BASE_URL');
 
   async shortenUrl(data: ShortenUrlDto, userId: number): Promise<string> {
     try {
@@ -39,7 +37,7 @@ export class UrlService {
         data: {
           longUrl: data.longUrl,
           shortUrlId: uniqueId,
-          shortUrl: `${this.baseUrl}/${uniqueId}`,
+          shortUrl: `${this.configService.get<string>('BASE_URL')}/${uniqueId}`,
           user: {
             connect: {
               id: userId,
@@ -74,8 +72,8 @@ export class UrlService {
     }
   }
 
-  async createQrCode(shortUrlId: string): Promise<Url> {
-    const url = `${this.baseUrl}/${shortUrlId}`;
+  async createQrCode(shortUrlId: string): Promise<any> {
+    const url = `${this.configService.get<string>('BASE_URL')}/${shortUrlId}`;
 
     const existingUrl = await this.prisma.url.findUnique({
       where: {
@@ -95,14 +93,13 @@ export class UrlService {
     }
 
     if (existingUrl.qrCode) {
-      return existingUrl;
+      return existingUrl.qrCode;
     }
 
     const qrCode = await this.generateQrCode(url);
-
     const qrCodeUrl = await this.uploadFileToCdn(qrCode, shortUrlId);
 
-    return this.prisma.url.update({
+    const updatedUrl = await this.prisma.url.update({
       where: {
         shortUrlId,
       },
@@ -121,6 +118,8 @@ export class UrlService {
         },
       },
     });
+
+    return updatedUrl.qrCode;
   }
 
   async getUrl(shortUrlId: string): Promise<Url | null> {
@@ -163,6 +162,7 @@ export class UrlService {
       where,
       include: {
         qrCode: true,
+        analytics: true,
       },
     });
 
@@ -179,23 +179,41 @@ export class UrlService {
       });
     }
 
+    if (url.analytics) {
+      const analyticsId = url.analytics.id;
+
+      // delete click events
+      await this.prisma.clickEvent.deleteMany({
+        where: {
+          analyticsId,
+        },
+      });
+
+      // delete analytics
+      await this.prisma.analytics.delete({
+        where: {
+          id: analyticsId,
+        },
+      });
+    }
+
     return this.prisma.url.delete({
       where,
     });
   }
 
-  private generateUniqueIdentifier(): string {
+  generateUniqueIdentifier(): string {
     const randomBytes = crypto.randomBytes(4);
     const uniqueId = randomBytes.toString('hex');
     return uniqueId;
   }
 
-  private async generateQrCode(url: string): Promise<string> {
+  async generateQrCode(url: string): Promise<string> {
     const qrCode = await QrCode.toDataURL(url);
     return qrCode;
   }
 
-  private async uploadFileToCdn(file: string, id: string): Promise<string> {
+  async uploadFileToCdn(file: string, id: string): Promise<string> {
     cloudinary.config({
       cloud_name: this.configService.get<string>('CLOUDINARY_CLOUD_NAME'),
       api_key: this.configService.get<string>('CLOUDINARY_API_KEY'),

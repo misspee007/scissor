@@ -1,6 +1,6 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateAnalyticsDto } from './dto/analytics.dto';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from '../prisma.service';
 import { QueueService } from './queue.service';
 import { Prisma } from '@prisma/client';
 
