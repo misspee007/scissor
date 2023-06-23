@@ -18,8 +18,6 @@ export class UrlService {
     private configService: ConfigService,
   ) {}
 
-  private baseUrl = this.configService.get<string>('BASE_URL');
-
   async shortenUrl(data: ShortenUrlDto, userId: number): Promise<string> {
     try {
       // check if url has already been shortened
@@ -39,7 +37,7 @@ export class UrlService {
         data: {
           longUrl: data.longUrl,
           shortUrlId: uniqueId,
-          shortUrl: `${this.baseUrl}/${uniqueId}`,
+          shortUrl: `${this.configService.get<string>('BASE_URL')}/${uniqueId}`,
           user: {
             connect: {
               id: userId,
@@ -74,8 +72,8 @@ export class UrlService {
     }
   }
 
-  async createQrCode(shortUrlId: string): Promise<Url> {
-    const url = `${this.baseUrl}/${shortUrlId}`;
+  async createQrCode(shortUrlId: string): Promise<any> {
+    const url = `${this.configService.get<string>('BASE_URL')}/${shortUrlId}`;
 
     const existingUrl = await this.prisma.url.findUnique({
       where: {
@@ -102,7 +100,7 @@ export class UrlService {
 
     const qrCodeUrl = await this.uploadFileToCdn(qrCode, shortUrlId);
 
-    return this.prisma.url.update({
+    const updatedUrl = this.prisma.url.update({
       where: {
         shortUrlId,
       },
@@ -121,6 +119,8 @@ export class UrlService {
         },
       },
     });
+
+    return updatedUrl.qrCode;
   }
 
   async getUrl(shortUrlId: string): Promise<Url | null> {
@@ -184,7 +184,7 @@ export class UrlService {
     });
   }
 
-  private generateUniqueIdentifier(): string {
+  generateUniqueIdentifier(): string {
     const randomBytes = crypto.randomBytes(4);
     const uniqueId = randomBytes.toString('hex');
     return uniqueId;
@@ -195,7 +195,7 @@ export class UrlService {
     return qrCode;
   }
 
-  private async uploadFileToCdn(file: string, id: string): Promise<string> {
+  async uploadFileToCdn(file: string, id: string): Promise<string> {
     cloudinary.config({
       cloud_name: this.configService.get<string>('CLOUDINARY_CLOUD_NAME'),
       api_key: this.configService.get<string>('CLOUDINARY_API_KEY'),
