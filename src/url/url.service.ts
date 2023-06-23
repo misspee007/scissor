@@ -93,14 +93,13 @@ export class UrlService {
     }
 
     if (existingUrl.qrCode) {
-      return existingUrl;
+      return existingUrl.qrCode;
     }
 
     const qrCode = await this.generateQrCode(url);
-
     const qrCodeUrl = await this.uploadFileToCdn(qrCode, shortUrlId);
 
-    const updatedUrl = this.prisma.url.update({
+    const updatedUrl = await this.prisma.url.update({
       where: {
         shortUrlId,
       },
@@ -190,7 +189,7 @@ export class UrlService {
     return uniqueId;
   }
 
-  private async generateQrCode(url: string): Promise<string> {
+  async generateQrCode(url: string): Promise<string> {
     const qrCode = await QrCode.toDataURL(url);
     return qrCode;
   }

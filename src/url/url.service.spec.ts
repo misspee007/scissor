@@ -174,77 +174,120 @@ describe('UrlService', () => {
   });
 
   describe('createQrCode', () => {
-    // FAILED TEST: The test fails because the mockResolvedValue() method is not returning the expected value.
-    // it('should return the URL with existing QR code if it already exists', async () => {
-    //   const existingUrl = {
-    //     id: 1,
-    //     shortUrlId: 'abc123',
-    //     shortUrl: 'http://example.com/abc123',
-    //     longUrl: 'http://example.com/long-url',
-    //     userId: 1,
-    //     createdAt: new Date(),
-    //     updatedAt: new Date(),
-    //     qrCode: {
-    //       image: 'http://example.com/qrcode-image',
-    //     },
-    //   };
+    it('should return the existing QR code if it already exists', async () => {
+      const existingUrl = {
+        id: 1,
+        shortUrlId: 'abc123',
+        shortUrl: `${configService.get('BASE_URL')}/abc123`,
+        longUrl: 'http://example.com/long-url',
+        userId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        qrCode: {
+          image: 'http://example.com/qr-code.png',
+        },
+      };
 
-    //   const findUniqueSpy = jest
-    //     .spyOn(prismaService.url, 'findUnique')
-    //     .mockResolvedValue(existingUrl);
+      const findUniqueSpy = jest
+        .spyOn(prismaService.url, 'findUnique')
+        .mockResolvedValue(existingUrl);
 
-    //   const shortUrlId = 'abc123';
+      const result = await urlService.createQrCode(existingUrl.shortUrlId);
 
-    //   const result = await urlService.createQrCode(shortUrlId);
+      expect(result.image).toEqual(existingUrl.qrCode.image);
+      expect(findUniqueSpy).toBeCalledWith({
+        where: {
+          shortUrlId: existingUrl.shortUrlId,
+        },
 
-    //   expect(result.image).toEqual(existingUrl.qrCode.image);
-    //   expect(findUniqueSpy).toBeCalledWith({
-    //     where: {
-    //       shortUrlId,
-    //     },
+        include: {
+          qrCode: {
+            select: {
+              image: true,
+            },
+          },
+        },
+      });
+    });
 
-    //     include: {
-    //       qrCode: true,
-    //     },
-    //   });
-    // });
+    it('should generate and upload a new QR code for the URL if it does not have an existing QR code', async () => {
+      const existingUrl = {
+        id: 1,
+        shortUrlId: 'abc123',
+        shortUrl: `${configService.get('BASE_URL')}/abc123`,
+        longUrl: 'http://example.com/long-url',
+        userId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        qrCode: null, // Simulating no existing QR code
+      };
+      const findUniqueSpy = jest
+        .spyOn(prismaService.url, 'findUnique')
+        .mockResolvedValue(existingUrl);
 
-    // FAILED TEST: The test fails because the mockResolvedValue() method is not returning the expected value.
-    // it('should generate and upload a new QR code for the URL if it does not have an existing QR code', async () => {
-    //   const existingUrl = null;
-    //   const findUniqueSpy = jest
-    //     .spyOn(prismaService.url, 'findUnique')
-    //     .mockResolvedValue(existingUrl);
+      const qrCode = {
+        image: 'http://example.com/qrcode-image',
+      };
+      const generateQrCodeSpy = jest
+        .spyOn(urlService, 'generateQrCode')
+        .mockResolvedValue(qrCode.image);
 
-    //   const qrCode = {
-    //     image: 'http://example.com/qrcode-image',
-    //   };
-    //   const generateQrCodeSpy = jest
-    //     .spyOn(urlService, 'createQrCode')
-    //     .mockResolvedValue(qrCode);
+      const uploadFileToCdnSpy = jest
+        .spyOn(urlService, 'uploadFileToCdn')
+        .mockResolvedValue(qrCode.image);
 
-    //   const uploadFileToCdnSpy = jest
-    //     .spyOn(urlService, 'uploadFileToCdn')
-    //     .mockResolvedValue(qrCode.image);
+      const updatedUrl = {
+        ...existingUrl,
+        qrCode: {
+          image: qrCode.image,
+        },
+      };
+      const updateSpy = jest
+        .spyOn(prismaService.url, 'update')
+        .mockResolvedValue(updatedUrl);
 
-    //   const shortUrlId = 'abc123';
+      const result = await urlService.createQrCode(existingUrl.shortUrlId);
 
-    //   const result = await urlService.createQrCode(shortUrlId);
-
-    //   expect(result.image).toEqual(qrCode.image);
-    //   expect(findUniqueSpy).toBeCalledWith({
-    //     where: {
-    //       shortUrlId,
-    //     },
-    //     include: {
-    //       qrCode: true,
-    //     },
-    //   });
-    //   expect(generateQrCodeSpy).toBeCalledWith(
-    //     `${configService.get('BASE_URL')}/${shortUrlId}`,
-    //   );
-    //   expect(uploadFileToCdnSpy).toBeCalledWith(qrCode, shortUrlId);
-    // });
+      expect(result).toEqual(updatedUrl.qrCode);
+      expect(findUniqueSpy).toHaveBeenCalledWith({
+        where: {
+          shortUrlId: existingUrl.shortUrlId,
+        },
+        include: {
+          qrCode: {
+            select: {
+              image: true,
+            },
+          },
+        },
+      });
+      expect(generateQrCodeSpy).toHaveBeenCalledWith(
+        `${configService.get('BASE_URL')}/${existingUrl.shortUrlId}`,
+      );
+      expect(uploadFileToCdnSpy).toHaveBeenCalledWith(
+        qrCode.image,
+        existingUrl.shortUrlId,
+      );
+      expect(updateSpy).toHaveBeenCalledWith({
+        where: {
+          shortUrlId: existingUrl.shortUrlId,
+        },
+        data: {
+          qrCode: {
+            create: {
+              image: qrCode.image,
+            },
+          },
+        },
+        include: {
+          qrCode: {
+            select: {
+              image: true,
+            },
+          },
+        },
+      });
+    });
 
     it('should throw a NotFoundException if the URL does not exist', async () => {
       jest.spyOn(prismaService.url, 'findUnique').mockResolvedValue(null);
