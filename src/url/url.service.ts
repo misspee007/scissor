@@ -162,6 +162,7 @@ export class UrlService {
       where,
       include: {
         qrCode: true,
+        analytics: true,
       },
     });
 
@@ -174,6 +175,24 @@ export class UrlService {
       await this.prisma.qrCode.delete({
         where: {
           urlId: url.id,
+        },
+      });
+    }
+
+    if (url.analytics) {
+      const analyticsId = url.analytics.id;
+
+      // delete click events
+      await this.prisma.clickEvent.deleteMany({
+        where: {
+          analyticsId,
+        },
+      });
+
+      // delete analytics
+      await this.prisma.analytics.delete({
+        where: {
+          id: analyticsId,
         },
       });
     }

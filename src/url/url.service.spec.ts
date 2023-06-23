@@ -34,6 +34,12 @@ describe('UrlService', () => {
               create: jest.fn(),
               delete: jest.fn(),
             },
+            analytics: {
+              delete: jest.fn(),
+            },
+            clickEvent: {
+              deleteMany: jest.fn(),
+            },
           },
         },
         {
@@ -378,51 +384,88 @@ describe('UrlService', () => {
     });
   });
 
-  // describe('deleteUrl', () => {
-  //   // FAILED TEST: The test fails because the mockResolvedValue() method is not returning the expected value.
-  //   it('should delete the URL and its associated QR code if it exists', async () => {
-  //     const url = {
-  //       shortUrl: 'http://example.com/abc123',
-  //       id: 1,
-  //       longUrl: 'http://example.com/long-url',
-  //       shortUrlId: 'abc123',
-  //       userId: 1,
-  //       createdAt: new Date(),
-  //       updatedAt: new Date(),
-  //       qrCode: {
-  //         id: 1,
-  //       },
-  //     };
-  //     const findUniqueSpy = jest
-  //       .spyOn(prismaService.url, 'findUnique')
-  //       .mockResolvedValue(url);
-  //     const deleteSpy = jest
-  //       .spyOn(prismaService.url, 'delete')
-  //       .mockResolvedValue(url);
-  //     const qrCodeDeleteSpy = jest.spyOn(prismaService.qrCode, 'delete');
+  describe('deleteUrl', () => {
+    // FAILED TEST: The test fails because the mockResolvedValue() method is not returning the expected value.
+    it('should delete the URL and its associated records', async () => {
+      const urlId = 1;
+      const url = {
+        id: urlId,
+        longUrl: 'http://example.com/long-url',
+        shortUrlId: 'abc123',
+        shortUrl: 'http://example.com/abc123',
+        userId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        qrCode: {
+          id: 1,
+          image: 'http://example.com/qrcode-image',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        analytics: {
+          id: 1,
+          clicks: 10,
+          shortUrlId: 'abc123',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          clickEvents: [
+            {
+              id: 1,
+              referer: 'http://example.com/referer',
+              timestamp: new Date(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
+            {
+              id: 2,
+              referer: 'http://example.com/another-referer',
+              timestamp: new Date(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
+          ],
+        },
+      };
 
-  //     const where = { id: 1 };
+      const findUniqueSpy = jest
+        .spyOn(prismaService.url, 'findUnique')
+        .mockResolvedValue(url);
 
-  //     const result = await urlService.deleteUrl(where);
+      const deleteQrCodeSpy = jest.spyOn(prismaService.qrCode, 'delete');
+      const deleteClickEventsSpy = jest.spyOn(
+        prismaService.clickEvent,
+        'deleteMany',
+      );
+      const deleteAnalyticsSpy = jest.spyOn(prismaService.analytics, 'delete');
+      const deleteUrlSpy = jest.spyOn(prismaService.url, 'delete');
 
-  //     expect(result).toEqual(url);
-  //     expect(findUniqueSpy).toBeCalledWith(where);
-  //     expect(deleteSpy).toBeCalledWith(where);
-  //     expect(qrCodeDeleteSpy).toBeCalledWith({
-  //       where: {
-  //         urlId: url.id,
-  //       },
-  //     });
-  //   });
+      await urlService.deleteUrl({ id: urlId });
 
-  //   it('should throw a NotFoundException if the URL does not exist', async () => {
-  //     jest.spyOn(prismaService.url, 'findUnique').mockResolvedValue(null);
+      expect(findUniqueSpy).toHaveBeenCalledWith({
+        where: { id: urlId },
+        include: {
+          qrCode: true,
+          analytics: true,
+        },
+      });
+      expect(deleteQrCodeSpy).toHaveBeenCalledWith({ where: { urlId } });
+      expect(deleteClickEventsSpy).toHaveBeenCalledWith({
+        where: { analyticsId: url.analytics.id },
+      });
+      expect(deleteAnalyticsSpy).toHaveBeenCalledWith({
+        where: { id: url.analytics.id },
+      });
+      expect(deleteUrlSpy).toHaveBeenCalledWith({ where: { id: urlId } });
+    });
 
-  //     const where = { id: 1 };
+    it('should throw a NotFoundException if the URL does not exist', async () => {
+      jest.spyOn(prismaService.url, 'findUnique').mockResolvedValue(null);
 
-  //     await expect(urlService.deleteUrl(where)).rejects.toThrow(
-  //       NotFoundException,
-  //     );
-  //   });
-  // });
+      const where = { id: 1 };
+
+      await expect(urlService.deleteUrl(where)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
 });
