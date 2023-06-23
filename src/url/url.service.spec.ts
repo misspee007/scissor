@@ -23,6 +23,7 @@ describe('UrlService', () => {
           useValue: {
             url: {
               findFirst: jest.fn(),
+              findMany: jest.fn(),
               create: jest.fn(),
               findUnique: jest.fn(),
               update: jest.fn(),
@@ -329,52 +330,52 @@ describe('UrlService', () => {
   });
 
   describe('getUrlHistory', () => {
-    // FAILED TEST: The test fails because the mockResolvedValue() method is not returning the expected value.
-    // it('should return the URL history for a given user ID', async () => {
-    //   const urls = [
-    //     {
-    //       shortUrl: 'http://example.com/abc123',
-    //       id: 1,
-    //       longUrl: 'http://example.com/long-url1',
-    //       shortUrlId: 'abc123',
-    //       userId: 1,
-    //       createdAt: new Date(),
-    //       updatedAt: new Date(),
-    //     },
-    //     {
-    //       shortUrl: 'http://example.com/abc456',
-    //       id: 2,
-    //       longUrl: 'http://example.com/long-url',
-    //       shortUrlId: 'abc456',
-    //       userId: 1,
-    //       createdAt: new Date(),
-    //       updatedAt: new Date(),
-    //     },
-    //   ];
-    //   const findManySpy = jest
-    //     .spyOn(prismaService.url, 'findMany')
-    //     .mockResolvedValue(urls);
-    //   const params = {
-    //     skip: 0,
-    //     take: 10,
-    //     cursor: undefined,
-    //     where: {},
-    //     orderBy: {},
-    //   };
-    //   const userId = 1;
-    //   const result = await urlService.getUrlHistory(params, userId);
-    //   expect(result).toEqual(urls);
-    //   expect(findManySpy).toBeCalledWith({
-    //     skip: params.skip,
-    //     take: params.take,
-    //     cursor: params.cursor,
-    //     where: {
-    //       ...params.where,
-    //       userId,
-    //     },
-    //     orderBy: params.orderBy,
-    //   });
-    // });
+    it('should return the URL history for a given user ID', async () => {
+      const urls = [
+        {
+          shortUrl: 'http://example.com/abc123',
+          id: 1,
+          longUrl: 'http://example.com/long-url1',
+          shortUrlId: 'abc123',
+          userId: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          shortUrl: 'http://example.com/abc456',
+          id: 2,
+          longUrl: 'http://example.com/long-url',
+          shortUrlId: 'abc456',
+          userId: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+      const findManySpy = jest
+        .spyOn(prismaService.url, 'findMany')
+        .mockResolvedValue(urls);
+      const params = {
+        skip: 0,
+        take: 10,
+        cursor: {},
+        where: {},
+        orderBy: {},
+      };
+      const userId = 1;
+
+      const result = await urlService.getUrlHistory(params, userId);
+      expect(result).toEqual(urls);
+      expect(findManySpy).toBeCalledWith({
+        skip: params.skip,
+        take: params.take,
+        cursor: params.cursor,
+        where: {
+          ...params.where,
+          userId,
+        },
+        orderBy: params.orderBy,
+      });
+    });
   });
 
   // describe('deleteUrl', () => {
