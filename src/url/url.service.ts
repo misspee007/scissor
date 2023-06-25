@@ -37,7 +37,7 @@ export class UrlService {
         data: {
           longUrl: data.longUrl,
           shortUrlId: uniqueId,
-          shortUrl: `${this.configService.get<string>('BASE_URL')}/${uniqueId}`,
+          shortUrl: `${this.configService.get<string>('APP_URL')}/${uniqueId}`,
           user: {
             connect: {
               id: userId,

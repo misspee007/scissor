@@ -24,7 +24,7 @@ export class AppController {
     return this.appService.getHealth();
   }
 
-  @Get(':shortUrlId')
+  @Get('api/:shortUrlId(*)')
   async redirect(
     @Res() res,
     @Req() req,
