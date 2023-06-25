@@ -1,4 +1,4 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { IsObject, IsOptional, IsString } from 'class-validator';
 
@@ -54,4 +54,27 @@ export class GetAnalyticsDto {
   @IsOptional()
   @IsObject()
   orderBy?: Prisma.AnalyticsOrderByWithRelationInput;
+}
+
+export class processClickDto {
+  @ApiProperty({
+    description: 'referer',
+    example: 'https://google.com',
+  })
+  @IsString()
+  referer: string;
+
+  @ApiProperty({
+    description: 'userAgent',
+    example: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+  })
+  @IsString()
+  userAgent: string;
+
+  @ApiProperty({
+    description: 'shortUrlId',
+    example: 'exampleId',
+  })
+  @IsString()
+  shortUrlId: string;
 }

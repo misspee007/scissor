@@ -56,7 +56,13 @@ export class AnalyticsService {
             orderBy: {
               timestamp: 'desc',
             },
-            take: 20,
+            take: 10,
+          },
+          url: {
+            select: {
+              shortUrl: true,
+              longUrl: true,
+            },
           },
         },
       }),
@@ -81,6 +87,7 @@ export class AnalyticsService {
     ipAddress,
     deviceType,
     clickCoordinates,
+    timestamp,
   }: CreateAnalyticsDto): Promise<void> {
     const clickEvent: CreateAnalyticsDto = {
       shortUrlId,
@@ -89,7 +96,7 @@ export class AnalyticsService {
       ipAddress,
       deviceType,
       clickCoordinates,
-      timestamp: new Date().toISOString(),
+      timestamp,
     };
 
     // Add the click event to the queue

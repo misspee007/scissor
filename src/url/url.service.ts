@@ -72,7 +72,9 @@ export class UrlService {
     }
   }
 
-  async createQrCode(shortUrlId: string): Promise<any> {
+  async createQrCode(
+    shortUrlId: string,
+  ): Promise<{ id: number; image: string; shortUrlId: string }> {
     const url = `${this.configService.get<string>('BASE_URL')}/${shortUrlId}`;
 
     const existingUrl = await this.prisma.url.findUnique({
@@ -82,6 +84,7 @@ export class UrlService {
       include: {
         qrCode: {
           select: {
+            id: true,
             image: true,
           },
         },
@@ -93,7 +96,11 @@ export class UrlService {
     }
 
     if (existingUrl.qrCode) {
-      return existingUrl.qrCode;
+      return {
+        id: existingUrl.qrCode.id,
+        image: existingUrl.qrCode.image,
+        shortUrlId,
+      };
     }
 
     const qrCode = await this.generateQrCode(url);
@@ -113,13 +120,18 @@ export class UrlService {
       include: {
         qrCode: {
           select: {
+            id: true,
             image: true,
           },
         },
       },
     });
 
-    return updatedUrl.qrCode;
+    return {
+      id: updatedUrl.qrCode.id,
+      image: updatedUrl.qrCode.image,
+      shortUrlId,
+    };
   }
 
   async getUrl(shortUrlId: string): Promise<Url | null> {
@@ -155,6 +167,14 @@ export class UrlService {
           userId,
         },
         orderBy,
+        include: {
+          qrCode: {
+            select: {
+              id: true,
+              image: true,
+            },
+          },
+        },
       }),
       this.prisma.url.count({
         where: {
