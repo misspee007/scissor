@@ -32,8 +32,25 @@ export class AppController {
   ): Promise<any> {
     const longUrl = await this.urlService.redirect(shortUrlId);
 
+    const {
+      referer,
+      userAgent,
+      ipAddress,
+      deviceType,
+      clickCoordinates,
+      timestamp,
+    } = req.headers;
+
     // record the click and referer
-    await this.analyticsService.processClick(shortUrlId, req.headers.referer);
+    await this.analyticsService.processClick({
+      shortUrlId,
+      referer,
+      userAgent,
+      ipAddress,
+      deviceType,
+      clickCoordinates,
+      timestamp,
+    });
 
     return res.redirect(longUrl);
   }

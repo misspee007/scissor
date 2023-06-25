@@ -13,7 +13,7 @@ import { ShortenUrlDto } from './dto/shorten-url.dto';
 import { CreateQrcodeDto } from './dto/create-qrcode.dto';
 import CustomRequest from 'src/custom.interface';
 import { ApiTags } from '@nestjs/swagger';
-import { GetUserUrlsDto, GetAllUrlsDto, GetUrlDto } from './dto/get-urls.dto';
+import { GetAllUrlsDto, GetUrlDto } from './dto/get-urls.dto';
 
 @ApiTags('URL')
 @Controller('url')

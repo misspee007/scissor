@@ -3,9 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  directUrl         = env("DIRECT_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
@@ -21,13 +21,13 @@ model User {
 model Url {
   id         Int        @id @default(autoincrement())
   longUrl    String
-  shortUrlId String    @unique
+  shortUrlId String     @unique
   shortUrl   String
   userId     Int
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-  qrCode     QrCode?
   analytics  Analytics?
+  qrCode     QrCode?
   user       User       @relation(fields: [userId], references: [id])
 }
 
@@ -36,26 +36,30 @@ model QrCode {
   image     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  url       Url      @relation(fields: [urlId], references: [id])
   urlId     Int      @unique
+  url       Url      @relation(fields: [urlId], references: [id])
 }
 
 model Analytics {
-  id        Int      @id @default(autoincrement())
-  clickEvents    ClickEvent[]
-  clicks    Int     
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  url       Url      @relation(fields: [shortUrlId], references: [shortUrlId])
-  shortUrlId     String      @unique
+  id          Int          @id @default(autoincrement())
+  clicks      Int
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  shortUrlId  String       @unique
+  url         Url          @relation(fields: [shortUrlId], references: [shortUrlId])
+  clickEvents ClickEvent[]
 }
 
 model ClickEvent {
-  id        Int      @id @default(autoincrement())
-  referer  String?
-  timestamp DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  analytics Analytics @relation(fields: [analyticsId], references: [id])
+  id          Int       @id @default(autoincrement())
+  referer     String?
+  userAgent   String?
+  ipAddress    String?
+  deviceType  String?
+  clickCoordinates String?
+  timestamp   DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   analyticsId Int
+  analytics   Analytics @relation(fields: [analyticsId], references: [id])
 }

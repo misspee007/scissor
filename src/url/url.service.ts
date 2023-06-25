@@ -139,22 +139,32 @@ export class UrlService {
       orderBy?: Prisma.UrlOrderByWithRelationInput;
     },
     userId: number,
-  ): Promise<Url[]> {
+  ): Promise<{ urls: Url[]; count: number }> {
     const { skip, take, cursor, where, orderBy } = params;
 
     const parsedSkip = Number.isInteger(skip) ? skip : undefined;
     const parsedTake = Number.isInteger(take) ? take : undefined;
 
-    return this.prisma.url.findMany({
-      skip: parsedSkip,
-      take: parsedTake,
-      cursor,
-      where: {
-        ...where,
-        userId,
-      },
-      orderBy,
-    });
+    const [urls, count] = await Promise.all([
+      this.prisma.url.findMany({
+        skip: parsedSkip,
+        take: parsedTake,
+        cursor,
+        where: {
+          ...where,
+          userId,
+        },
+        orderBy,
+      }),
+      this.prisma.url.count({
+        where: {
+          ...where,
+          userId,
+        },
+      }),
+    ]);
+
+    return { urls, count };
   }
 
   async deleteUrl(where: Prisma.UrlWhereUniqueInput): Promise<Url> {

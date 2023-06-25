@@ -5,6 +5,10 @@ import { IsObject, IsOptional, IsString } from 'class-validator';
 export class CreateAnalyticsDto {
   shortUrlId: string;
   referer: string;
+  userAgent: string;
+  ipAddress: string;
+  deviceType: string;
+  clickCoordinates: string;
   timestamp: string;
 }
 

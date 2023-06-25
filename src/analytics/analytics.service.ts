@@ -2,7 +2,7 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateAnalyticsDto } from './dto/analytics.dto';
 import { PrismaService } from '../prisma.service';
 import { QueueService } from './queue.service';
-import { Prisma } from '@prisma/client';
+import { Analytics, Prisma } from '@prisma/client';
 
 @Injectable()
 export class AnalyticsService {
@@ -21,45 +21,74 @@ export class AnalyticsService {
       orderBy?: Prisma.AnalyticsOrderByWithRelationInput;
     },
     userId: number,
-  ): Promise<any[]> {
+  ): Promise<{ analytics: Analytics[]; count: number }> {
     const { skip, take, cursor, where, orderBy } = params;
 
     const parsedSkip = Number.isInteger(skip) ? skip : undefined;
     const parsedTake = Number.isInteger(take) ? take : undefined;
 
     // Get the analytics for the user
-    return this.prisma.analytics.findMany({
-      skip: parsedSkip,
-      take: parsedTake,
-      cursor,
-      where: {
-        url: {
-          userId,
+    const [analytics, count] = await Promise.all([
+      this.prisma.analytics.findMany({
+        skip: parsedSkip,
+        take: parsedTake,
+        cursor,
+        where: {
+          url: {
+            userId,
+          },
+          // OTHER FILTERS
+          ...where,
         },
-        // OTHER FILTERS
-        ...where,
-      },
-      orderBy,
+        orderBy,
 
-      include: {
-        clickEvents: {
-          select: {
-            referer: true,
-            timestamp: true,
+        include: {
+          clickEvents: {
+            select: {
+              id: true,
+              referer: true,
+              userAgent: true,
+              ipAddress: true,
+              deviceType: true,
+              clickCoordinates: true,
+              timestamp: true,
+            },
+            orderBy: {
+              timestamp: 'desc',
+            },
+            take: 20,
           },
-          orderBy: {
-            timestamp: 'desc',
-          },
-          take: 20,
         },
-      },
-    });
+      }),
+      this.prisma.analytics.count({
+        where: {
+          url: {
+            userId,
+          },
+          // OTHER FILTERS
+          ...where,
+        },
+      }),
+    ]);
+
+    return { analytics, count };
   }
 
-  async processClick(shortUrlId: string, referer: string): Promise<void> {
+  async processClick({
+    shortUrlId,
+    referer,
+    userAgent,
+    ipAddress,
+    deviceType,
+    clickCoordinates,
+  }: CreateAnalyticsDto): Promise<void> {
     const clickEvent: CreateAnalyticsDto = {
       shortUrlId,
       referer,
+      userAgent,
+      ipAddress,
+      deviceType,
+      clickCoordinates,
       timestamp: new Date().toISOString(),
     };
 
@@ -69,7 +98,15 @@ export class AnalyticsService {
 
   async saveClickEvent(clickEvent: CreateAnalyticsDto): Promise<void> {
     // Save the click event to the database
-    const { shortUrlId, referer, timestamp } = clickEvent;
+    const {
+      shortUrlId,
+      referer,
+      userAgent,
+      ipAddress,
+      deviceType,
+      clickCoordinates,
+      timestamp,
+    } = clickEvent;
 
     await this.prisma.analytics.upsert({
       where: {
@@ -81,6 +118,10 @@ export class AnalyticsService {
           create: [
             {
               referer,
+              userAgent,
+              ipAddress,
+              deviceType,
+              clickCoordinates,
               timestamp,
             },
           ],
@@ -92,6 +133,10 @@ export class AnalyticsService {
           create: [
             {
               referer,
+              userAgent,
+              ipAddress,
+              deviceType,
+              clickCoordinates,
               timestamp,
             },
           ],

@@ -48,6 +48,10 @@ CREATE TABLE "Analytics" (
 CREATE TABLE "ClickEvent" (
     "id" SERIAL NOT NULL,
     "referer" TEXT,
+    "userAgent" TEXT,
+    "ipAddress" TEXT,
+    "deviceType" TEXT,
+    "clickCoordinates" TEXT,
     "timestamp" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
