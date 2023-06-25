@@ -1,11 +1,12 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { jwtConstants } from './constants';
 import { AuthGuard } from './auth.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { EncryptPasswordMiddleware } from './interceptors/auth.interceptor';
 
 @Module({
   imports: [
@@ -17,6 +18,10 @@ import { APP_GUARD } from '@nestjs/core';
     }),
   ],
   providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: EncryptPasswordMiddleware,
+    },
     AuthService,
     {
       provide: APP_GUARD,
@@ -26,4 +31,8 @@ import { APP_GUARD } from '@nestjs/core';
   controllers: [AuthController],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(EncryptPasswordMiddleware).forRoutes('auth/register');
+  }
+}

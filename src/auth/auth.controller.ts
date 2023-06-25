@@ -1,9 +1,17 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { SignUpDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
+import { EncryptPasswordMiddleware } from './interceptors/auth.interceptor';
 
 @ApiTags('Auth')
 @Public()
@@ -17,6 +25,7 @@ export class AuthController {
     return this.authService.signIn(email, password);
   }
 
+  @UseInterceptors(EncryptPasswordMiddleware)
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
   signUp(@Body() { email, password }: SignUpDto) {
