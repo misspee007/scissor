@@ -26,8 +26,8 @@ import { AnalyticsController } from './analytics/analytics.controller';
     }),
     CacheModule.register({
       // caching
-      ttl: 300000, // 5 minutes
-      max: 1000, // maximum number of items in cache
+      ttl: 60000, // 60 seconds
+      max: 500, // maximum number of items in cache
       isGlobal: true,
     }),
     ThrottlerModule.forRoot({
