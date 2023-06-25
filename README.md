@@ -1,6 +1,6 @@
-# Scissor
+# SnipIt
 
-Scissor is a URL shortener application that allows users to generate short, customized URLs for their long URLs. It provides a simple and efficient way to manage and track URLs by providing analytics and QR code generation features.
+SnipIt is a URL shortener application that allows users to generate short, customized URLs for their long URLs. It provides a simple and efficient way to manage and track URLs by providing analytics and QR code generation features.
 
 ## Features
 
