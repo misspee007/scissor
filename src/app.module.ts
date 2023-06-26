@@ -25,8 +25,7 @@ import { AnalyticsController } from './analytics/analytics.controller';
       isGlobal: true,
     }),
     CacheModule.register({
-      // caching
-      ttl: 60000, // 60 seconds
+      ttl: 60000, // 2 minutes
       max: 500, // maximum number of items in cache
       isGlobal: true,
     }),

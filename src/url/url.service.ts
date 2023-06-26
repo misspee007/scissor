@@ -170,7 +170,6 @@ export class UrlService {
         include: {
           qrCode: {
             select: {
-              id: true,
               image: true,
             },
           },

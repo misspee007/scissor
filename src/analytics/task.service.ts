@@ -6,7 +6,7 @@ import { Cron } from '@nestjs/schedule';
 export class TaskService {
   constructor(private readonly queueService: QueueService) {}
 
-  @Cron('* * * * *') // Runs every minute
+  @Cron('*/2 * * * *') // every 2 minutes
   async handleCron(): Promise<void> {
     await this.queueService.processClickEvents();
   }
