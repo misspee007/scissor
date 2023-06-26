@@ -2,6 +2,12 @@
 
 SnipIt is a URL shortener application that allows users to generate short, customized URLs for their long URLs. It provides a simple and efficient way to manage and track URLs by providing analytics and QR code generation features.
 
+## Links
+- Base URL: https://snipit-ad1a50f4a478.herokuapp.com
+- Documentation: https://snipit-ad1a50f4a478.herokuapp.com/docs
+- Frontend: https://snipt.vercel.app
+- Frontend Repo: https://github.com/misspee007/scissor-app
+
 ## Features
 
 - URL shortening: Generate short and customized URLs for long URLs.
@@ -23,7 +29,7 @@ SnipIt is a URL shortener application that allows users to generate short, custo
 
 1. Clone the repository: `git clone <repository-url>`
 2. Install dependencies: `yarn install`
-3. Set up the database connection in the `.env` file (see `.env.example`).
+3. Set up the environment variables in the `.env` file (see `.env.example`).
 4. Generate prisma client: `yarn run prisma:generate`
 5. Run database migrations: `yarn run prisma:migrate`
 6. Start the application: `yarn run start:dev`
