@@ -75,7 +75,7 @@ export class UrlService {
   async createQrCode(
     shortUrlId: string,
   ): Promise<{ id: number; image: string; shortUrlId: string }> {
-    const url = `${this.configService.get<string>('BASE_URL')}/${shortUrlId}`;
+    const url = `${this.configService.get<string>('APP_URL')}/${shortUrlId}`;
 
     const existingUrl = await this.prisma.url.findUnique({
       where: {
